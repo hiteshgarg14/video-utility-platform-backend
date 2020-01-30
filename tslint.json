@@ -1,0 +1,15 @@
+{
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    "no-debugger": false,
+    "no-console": false,
+    "object-literal-sort-keys": false,
+    "no-submodule-imports": false,
+    "member-ordering": false,
+    "ordered-imports": false,
+    "no-implicit-dependencies": false,
+    "no-namespace": false,
+    "no-shadowed-variable": true,
+    "no-empty": false
+  }
+}
