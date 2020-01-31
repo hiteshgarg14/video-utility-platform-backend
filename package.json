@@ -4,6 +4,10 @@
   "types": "./dist/src/@server.d.ts",
   "version": "0.0.1",
   "description": "Awesome project developed with TypeORM.",
+  "engines": {
+    "node": "12.12.0"
+  },
+  "private": true,
   "devDependencies": {
     "ts-node": "3.3.0",
     "tslint": "^6.0.0",
@@ -11,6 +15,19 @@
     "typescript": "3.3.3333"
   },
   "dependencies": {
+    "@sentry/node": "^5.11.2",
+    "@types/app-root-path": "^1.2.4",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/body-parser": "^1.17.1",
+    "@types/compression": "^1.0.1",
+    "@types/cors": "^2.8.6",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.2",
+    "@types/helmet": "0.0.45",
+    "@types/jsonwebtoken": "^8.3.7",
+    "@types/node": "^8.10.59",
+    "@types/uuid": "^3.4.7",
+    "@types/winston": "^2.4.4",
     "app-root-path": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.1",
@@ -27,24 +44,12 @@
     "ts-node-dev": "^1.0.0-pre.44",
     "typeorm": "0.2.22",
     "uuid": "^3.4.0",
-    "winston": "^3.2.1",
-    "@types/app-root-path": "^1.2.4",
-    "@types/bcryptjs": "^2.4.2",
-    "@types/body-parser": "^1.17.1",
-    "@types/compression": "^1.0.1",
-    "@types/cors": "^2.8.6",
-    "@types/dotenv": "^8.2.0",
-    "@types/express": "^4.17.2",
-    "@types/helmet": "0.0.45",
-    "@types/jsonwebtoken": "^8.3.7",
-    "@types/node": "^8.10.59",
-    "@types/uuid": "^3.4.7",
-    "@types/winston": "^2.4.4"
+    "winston": "^3.2.1"
   },
   "scripts": {
     "build": "tsc",
     "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/@server.ts",
-    "prod": "tsc && node ./build/src/@server.js",
+    "prod": "tsc && pm2 start ./build/src/@server.js",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js"
   }
 }

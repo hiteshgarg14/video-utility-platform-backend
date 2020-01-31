@@ -4,7 +4,6 @@ import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 
 import UserModel from '../@models/UserModel';
-import config from '../@configs/config';
 
 export default class AuthController {
   public login: RequestHandler = async (req, res) => {
@@ -32,7 +31,7 @@ export default class AuthController {
     // Sing JWT, valid for 1 hour
     const token = jwt.sign(
       { userId: user.id, username: user.username },
-      config.jwtSecret,
+      process.env.JWT_SECRET!,
       { expiresIn: '1h' },
     );
 

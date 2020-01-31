@@ -22,8 +22,18 @@ export default class UserController {
   public getOneById: RequestHandler = async (req, res) => {
     // Get the ID from the url
     const id: number = +req.params.id;
-
     // Get the user from database
+    // this.repository
+    //   .findOneOrFail(id, {
+    //     select: ['id', 'username', 'role'],
+    //   })
+    //   .then(user => {
+    //     res.send(user);
+    //   })
+    //   .catch(_ => {
+    //     res.status(404).json('User not found');
+    //   });
+
     let user!: UserModel;
     try {
       user = await this.repository.findOneOrFail(id, {

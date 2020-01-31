@@ -1,18 +1,30 @@
 module.exports = {
   type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'hiteshgarg14',
-  password: '',
-  database: 'node_type_orm',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   migrationsRun: true,
   logging: true,
-  entities: ['build/src/@models/**/*.js'],
-  migrations: ['build/src/@migrations/**/*.js'],
-  subscribers: ['build/src/@subscribers/**/*.js'],
+  entities: [
+    process.env.NODE_ENV === 'development'
+      ? 'src/@models/**/*.ts'
+      : 'build/src/@models/**/*.js',
+  ],
+  migrations: [
+    process.env.NODE_ENV === 'development'
+      ? 'src/@migrations/**/*.ts'
+      : 'build/src/@migrations/**/*.js',
+  ],
   cli: {
-    entitiesDir: 'build/src/@models',
-    migrationsDir: 'build/src/@migrations',
-    subscribersDir: 'build/src/@subscribers',
+    entitiesDir:
+      process.env.NODE_ENV === 'development'
+        ? 'src/@models'
+        : 'build/src/@models',
+    migrationsDir:
+      process.env.NODE_ENV === 'development'
+        ? 'src/@migrations'
+        : 'build/src/@migrations',
   },
 };

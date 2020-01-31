@@ -9,6 +9,7 @@ import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
 import uuidv1 from 'uuid/v1';
+import * as Sentry from '@sentry/node';
 import { requestLogger, responseLogger, errorLogger } from './@utils/logger';
 import Routes from './@routes';
 
@@ -18,14 +19,25 @@ export default class AppFactory {
   constructor() {
     this.app = express();
 
-    this.configureMiddlewares();
+    // Sentry must be the first configuration of the app
+    this.configureSentry();
+
+    this.configureGeneralMiddlewares();
     this.app.use(this.logRequestResponse);
     this.registerRoutes();
 
-    this.app.use(this.globalErrorHandler);
+    this.configureErrorMiddelwares();
   }
 
-  private configureMiddlewares() {
+  private configureSentry() {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV,
+    });
+    this.app.use(Sentry.Handlers.requestHandler() as RequestHandler);
+  }
+
+  private configureGeneralMiddlewares() {
     this.app.use(bodyParser.json());
     this.app.use(cors());
     this.app.use(compression());
@@ -35,6 +47,9 @@ export default class AppFactory {
 
   private setRequestId: RequestHandler = (req, __, next) => {
     req.requestId = uuidv1();
+    Sentry.configureScope(scope => {
+      scope.setExtra('request_id', req.requestId);
+    });
     next();
   };
 
@@ -59,8 +74,22 @@ export default class AppFactory {
     next();
   };
 
-  private globalErrorHandler: ErrorRequestHandler = (err, _, res, __) => {
-    errorLogger.error(`${err.stack}`);
+  private configureErrorMiddelwares() {
+    this.app.use(
+      Sentry.Handlers.errorHandler({
+        shouldHandleError(error) {
+          if (error) {
+            return true;
+          }
+          return false;
+        },
+      }) as ErrorRequestHandler,
+    );
+    this.app.use(this.globalErrorHandler);
+  }
+
+  private globalErrorHandler: ErrorRequestHandler = (err, req, res, __) => {
+    errorLogger.error(`${req.requestId} :: ${err.stack}`);
     res.status(500).json({
       message: 'Looks like something went wrong! Please try again later.',
     });
