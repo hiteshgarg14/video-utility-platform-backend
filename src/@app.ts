@@ -10,6 +10,7 @@ import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
 import uuidv1 from 'uuid/v1';
+import { UI } from 'bull-board';
 import * as Sentry from '@sentry/node';
 import { requestLogger, responseLogger, errorLogger } from './@utils/logger';
 import Routes from './@routes';
@@ -97,6 +98,7 @@ export default class AppFactory {
   };
 
   private registerRoutes() {
+    this.app.use('/admin/jobs', UI);
     new Routes().init(this.app);
   }
 }

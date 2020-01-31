@@ -1,10 +1,10 @@
-import http from 'http';
 import dotenv from 'dotenv';
+dotenv.config();
+
+import http from 'http';
 import { createConnection } from 'typeorm';
 import { normalizePort } from './@utils';
 import AppFactory from './@app';
-
-dotenv.config();
 
 createConnection()
   .then(_ => {

@@ -12,7 +12,6 @@ export default class AuthController {
     if (!(username && password)) {
       res.status(400).send();
     }
-
     // Get user from database
     const userRepository = getRepository(UserModel);
     let user!: UserModel;
