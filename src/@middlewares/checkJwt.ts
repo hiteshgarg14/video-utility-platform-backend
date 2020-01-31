@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import * as Sentry from '@sentry/node';
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   // Get the jwt token from the head
@@ -19,6 +20,9 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   // The token is valid for 1 hour
   // We want to send a new token on every request
   const { userId, username } = jwtPayload;
+  Sentry.configureScope(scope => {
+    scope.setUser({ id: userId, username });
+  });
   const newToken = jwt.sign({ userId, username }, process.env.JWT_SECRET!, {
     expiresIn: '1h',
   });

@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
-
+import * as Sentry from '@sentry/node';
 import UserModel from '../@models/UserModel';
 
 export default class AuthController {
@@ -34,6 +34,9 @@ export default class AuthController {
       process.env.JWT_SECRET!,
       { expiresIn: '1h' },
     );
+    Sentry.configureScope(scope => {
+      scope.setUser({ id: user.id.toString(), username: user.username });
+    });
 
     // Send the jwt in the response
     return res.send(token);
