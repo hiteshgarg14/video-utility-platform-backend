@@ -9,7 +9,7 @@ import {
 import { Length, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 
-@Entity()
+@Entity({ name: 'users' })
 @Unique(['username'])
 export default class UserModel {
   @PrimaryGeneratedColumn()

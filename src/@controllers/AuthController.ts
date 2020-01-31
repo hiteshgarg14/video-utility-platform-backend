@@ -19,7 +19,7 @@ export default class AuthController {
     try {
       user = await userRepository.findOneOrFail({ where: { username } });
     } catch (error) {
-      res.status(401).send();
+      return res.status(401).send();
     }
 
     // Check if encrypted password match
@@ -36,7 +36,7 @@ export default class AuthController {
     );
 
     // Send the jwt in the response
-    res.send(token);
+    return res.send(token);
   };
 
   public changePassword: RequestHandler = async (req, res) => {
