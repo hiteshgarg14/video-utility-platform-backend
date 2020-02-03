@@ -12,7 +12,12 @@ import helmet from 'helmet';
 import uuidv1 from 'uuid/v1';
 import { UI } from 'bull-board';
 import * as Sentry from '@sentry/node';
-import { requestLogger, responseLogger, errorLogger } from './@utils/logger';
+import {
+  requestLogger,
+  responseLogger,
+  errorLogger,
+  consoleLogger,
+} from './@utils/logger';
 import Routes from './@routes';
 
 export default class AppFactory {
@@ -26,6 +31,7 @@ export default class AppFactory {
 
     this.configureGeneralMiddlewares();
     this.app.use(this.logRequestResponse);
+    this.configureJobs();
     this.registerRoutes();
 
     this.configureErrorMiddelwares();
@@ -69,8 +75,19 @@ export default class AppFactory {
 
     res.on('finish', () => {
       const responseTime = +new Date() - requestTime;
-      const responseMessage = `${req.requestId} :: ${res.statusCode} :: ${responseTime}`;
+      const responseMessage = `${
+        req.requestId
+      } :: ${req.method.toUpperCase()} :: ${req.url} :: ${
+        res.statusCode
+      } :: ${responseTime}`;
       responseLogger.info(responseMessage);
+      if (process.env.NODE_ENV !== 'production') {
+        consoleLogger.info(
+          `${req.method.toUpperCase()} :: ${req.url} :: ${
+            res.statusCode
+          } :: ${responseTime}`,
+        );
+      }
     });
 
     next();
@@ -97,8 +114,11 @@ export default class AppFactory {
     });
   };
 
-  private registerRoutes() {
+  private configureJobs() {
     this.app.use('/admin/jobs', UI);
+    require('./@jobs');
+  }
+  private registerRoutes() {
     new Routes().init(this.app);
   }
 }

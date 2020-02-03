@@ -53,7 +53,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/@server.ts",
+    "start": "set debug=* && ts-node-dev --debug --respawn --transpileOnly --ignore-watch node_modules ./src/@server.ts",
     "prod": "tsc && pm2 start ./build/src/@server.js",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js"
   }
