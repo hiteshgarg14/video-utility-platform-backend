@@ -1,11 +1,13 @@
 import appRoot from 'app-root-path';
 import * as winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 const options = {
   error: {
     level: 'error',
     label: 'error',
-    filename: `${appRoot}/logs/error.log`,
+    filename: `${appRoot}/logs/error-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
     handleExceptions: true,
     json: false,
     colorize: false,
@@ -13,7 +15,8 @@ const options = {
   request: {
     level: 'info',
     label: 'request',
-    filename: `${appRoot}/logs/request.log`,
+    filename: `${appRoot}/logs/request-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
     handleExceptions: false,
     json: false,
     colorize: false,
@@ -21,7 +24,8 @@ const options = {
   response: {
     level: 'info',
     label: 'response',
-    filename: `${appRoot}/logs/response.log`,
+    filename: `${appRoot}/logs/response-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
     handleExceptions: false,
     json: false,
     colorize: false,
@@ -29,7 +33,8 @@ const options = {
   app: {
     level: 'info',
     label: 'app',
-    filename: `${appRoot}/logs/app.log`,
+    filename: `${appRoot}/logs/app-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
     handleExceptions: false,
     json: false,
     colorize: false,
@@ -61,7 +66,7 @@ const getLogger = (
     transports:
       name === 'console'
         ? [new winston.transports.Console(options[name])]
-        : [new winston.transports.File(options[name])],
+        : [new DailyRotateFile(options[name])],
     exitOnError: false, // do not exit on handled exceptions
   });
 };
