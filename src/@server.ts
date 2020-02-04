@@ -7,7 +7,7 @@ import { normalizePort } from './@utils';
 import AppFactory from './@app';
 
 createConnection()
-  .then(_ => {
+  .then(async _ => {
     const appFactory = new AppFactory();
     const app = appFactory.app;
 

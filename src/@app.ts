@@ -38,11 +38,13 @@ export default class AppFactory {
   }
 
   private configureSentry() {
-    Sentry.init({
-      dsn: process.env.SENTRY_DSN,
-      environment: process.env.NODE_ENV,
-    });
-    this.app.use(Sentry.Handlers.requestHandler() as RequestHandler);
+    if (process.env.NODE_ENV !== 'test') {
+      Sentry.init({
+        dsn: process.env.SENTRY_DSN,
+        environment: process.env.NODE_ENV,
+      });
+      this.app.use(Sentry.Handlers.requestHandler() as RequestHandler);
+    }
   }
 
   private configureGeneralMiddlewares() {
@@ -62,49 +64,54 @@ export default class AppFactory {
   };
 
   private logRequestResponse: RequestHandler = (req, res, next) => {
-    const requestTime = +new Date();
+    if (process.env.NODE_ENV !== 'test') {
+      const requestTime = +new Date();
 
-    const requestMessage = `${
-      req.requestId
-    } :: ${req.method.toUpperCase()} :: ${req.url} :: ${JSON.stringify(
-      req.body,
-    )} :: ${req.headers.authorization || ''} :: ${req.headers[
-      'x-forwarded-for'
-    ] || req.connection.remoteAddress} :: ${req.get('User-Agent')}`;
-    requestLogger.info(requestMessage);
-
-    res.on('finish', () => {
-      const responseTime = +new Date() - requestTime;
-      const responseMessage = `${
+      const requestMessage = `${
         req.requestId
-      } :: ${req.method.toUpperCase()} :: ${req.url} :: ${
-        res.statusCode
-      } :: ${responseTime}`;
-      responseLogger.info(responseMessage);
-      if (process.env.NODE_ENV !== 'production') {
-        consoleLogger.info(
-          `${req.method.toUpperCase()} :: ${req.url} :: ${
-            res.statusCode
-          } :: ${responseTime}`,
-        );
-      }
-    });
+      } :: ${req.method.toUpperCase()} :: ${req.url} :: ${JSON.stringify(
+        req.body,
+      )} :: ${req.headers.authorization || ''} :: ${req.headers[
+        'x-forwarded-for'
+      ] || req.connection.remoteAddress} :: ${req.get('User-Agent')}`;
+      requestLogger.info(requestMessage);
 
+      res.on('finish', () => {
+        if (process.env.NODE_ENV !== 'test') {
+          const responseTime = +new Date() - requestTime;
+          const responseMessage = `${
+            req.requestId
+          } :: ${req.method.toUpperCase()} :: ${req.url} :: ${
+            res.statusCode
+          } :: ${responseTime}`;
+          responseLogger.info(responseMessage);
+          if (process.env.NODE_ENV !== 'production') {
+            consoleLogger.info(
+              `${req.method.toUpperCase()} :: ${req.url} :: ${
+                res.statusCode
+              } :: ${responseTime}`,
+            );
+          }
+        }
+      });
+    }
     next();
   };
 
   private configureErrorMiddelwares() {
-    this.app.use(
-      Sentry.Handlers.errorHandler({
-        shouldHandleError(error) {
-          if (error) {
-            return true;
-          }
-          return false;
-        },
-      }) as ErrorRequestHandler,
-    );
-    this.app.use(this.globalErrorHandler);
+    if (process.env.NODE_ENV !== 'test') {
+      this.app.use(
+        Sentry.Handlers.errorHandler({
+          shouldHandleError(error) {
+            if (error) {
+              return true;
+            }
+            return false;
+          },
+        }) as ErrorRequestHandler,
+      );
+      this.app.use(this.globalErrorHandler);
+    }
   }
 
   private globalErrorHandler: ErrorRequestHandler = (err, req, res, __) => {
@@ -115,8 +122,10 @@ export default class AppFactory {
   };
 
   private configureJobs() {
-    this.app.use('/admin/jobs', UI);
-    require('./@jobs');
+    if (process.env.NODE_ENV !== 'test') {
+      this.app.use('/admin/jobs', UI);
+      require('./@jobs');
+    }
   }
   private registerRoutes() {
     new Routes().init(this.app);

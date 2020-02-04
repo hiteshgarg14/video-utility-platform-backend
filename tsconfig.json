@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es5", "es6"],
+    "lib": ["es5", "es6", "dom"],
     "target": "esnext",
     "module": "commonjs",
     "declaration": true,
@@ -17,5 +17,6 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types", "./@configs/customTypings"]
-  }
+  },
+  "exclude": ["node_modules", "build"]
 }

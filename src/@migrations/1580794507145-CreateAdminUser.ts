@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, getRepository } from 'typeorm';
 import UserModel from '../@models/UserModel';
 
-export class CreateAdminUser1580365455844 implements MigrationInterface {
+export class CreateAdminUser1580794507145 implements MigrationInterface {
   public async up(_: QueryRunner): Promise<any> {
     const user = new UserModel();
     user.username = 'admin';
