@@ -33,12 +33,21 @@ export default class VideoController {
     res.send({ videos });
   };
 
-  public getVideo: RequestHandler = (req, res) => {
-    const filePath =
-      req.query.resolution !== undefined
-        ? `${appRoot}/uploads/${req.query.resolution}p/${req.params.videoName}`
-        : `${appRoot}/uploads/${req.params.videoName}`;
+  public getVideo: RequestHandler = async (req, res) => {
+    const video = await VideoModel.findOne({
+      where: { name: req.params.videoName },
+    });
 
+    if (video === null) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    const requestedResolution =
+      req.query.resolution === undefined
+        ? Math.max(...video.resolutions.map(item => +item)).toString()
+        : req.query.resolution;
+
+    const filePath = `${appRoot}/uploads/${requestedResolution}p/${req.params.videoName}`;
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;
     const range = req.headers.range as string;
@@ -59,7 +68,7 @@ export default class VideoController {
       };
 
       res.writeHead(206, head);
-      file.pipe(res);
+      return file.pipe(res);
     } else {
       const head = {
         'Content-Length': fileSize,
@@ -67,17 +76,32 @@ export default class VideoController {
       };
 
       res.writeHead(200, head);
-      fs.createReadStream(filePath).pipe(res);
+      return fs.createReadStream(filePath).pipe(res);
     }
   };
 
-  public liveSteramVideo: RequestHandler = (req, res) => {
-    const videoName = req.params.videoName;
-    const streamingUrl = `rtmp://localhost/live/${uuidv1()}`;
+  public liveSteramVideo: RequestHandler = async (req, res) => {
+    const video = await VideoModel.findOne({
+      where: { name: req.params.videoName },
+    });
+
+    if (video === null) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    const requestedResolution =
+      req.query.resolution === undefined
+        ? Math.max(...video.resolutions.map(item => +item)).toString()
+        : req.query.resolution;
+
+    const filePath = `${appRoot}/uploads/${requestedResolution}p/${req.params.videoName}`;
+    const streamKey = uuidv1();
+    const rtmpStreamingUrl = `rtmp://localhost/live/${streamKey}`;
+    const hlsStreamUrl = `http://localhost:8001/live/${streamKey}/index.m3u8`;
     const process = exec(
-      `ffmpeg -re -i ${appRoot}/uploads/${videoName} -c:v libx264 -preset superfast -tune zerolatency -c:a aac -ar 44100 -f flv ${streamingUrl}`,
+      `ffmpeg -re -i ${filePath} -c:v libx264 -preset superfast -tune zerolatency -c:a aac -ar 44100 -f flv ${rtmpStreamingUrl}`,
     );
     console.log(`Live streaming started with PID: ${process.pid}`);
-    res.json({ url: streamingUrl });
+    return res.json({ rtmp: rtmpStreamingUrl, hls: hlsStreamUrl });
   };
 }

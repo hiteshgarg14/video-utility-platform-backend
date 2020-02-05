@@ -7,6 +7,7 @@ import AppFactory from './@app';
 import NodeMediaServer from 'node-media-server';
 import config from './@configs';
 import { Sequelize } from 'sequelize';
+import createPlaylist from './@utils/createLiveStreamPlaylist';
 import appRootPath from 'app-root-path';
 
 const sequelize = new Sequelize(
@@ -45,6 +46,12 @@ sequelize
     );
 
     const nms = new NodeMediaServer(config.nodeMediaServerConfig);
+    nms.on('prePublish', (_: any, StreamPath: string, __: any) => {
+      if (StreamPath.indexOf('hls_') !== -1) {
+        const name = StreamPath.split('/').pop() as string;
+        createPlaylist(name);
+      }
+    });
     nms.run();
   })
   .catch(err => {
