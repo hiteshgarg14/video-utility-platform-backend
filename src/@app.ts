@@ -6,6 +6,7 @@ import express, {
   ErrorRequestHandler,
 } from 'express';
 import bodyParser from 'body-parser';
+import busboy from 'connect-busboy';
 import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
@@ -53,6 +54,11 @@ export default class AppFactory {
     this.app.use(compression());
     this.app.use(helmet());
     this.app.use(this.setRequestId);
+    this.app.use(
+      busboy({
+        highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
+      }),
+    );
   }
 
   private setRequestId: RequestHandler = (req, __, next) => {
@@ -115,6 +121,7 @@ export default class AppFactory {
   }
 
   private globalErrorHandler: ErrorRequestHandler = (err, req, res, __) => {
+    console.log(err);
     errorLogger.error(`${req.requestId} :: ${err.stack}`);
     res.status(500).json({
       message: 'Looks like something went wrong! Please try again later.',

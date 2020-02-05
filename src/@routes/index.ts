@@ -1,10 +1,8 @@
 import { Application } from 'express';
-import AuthRoutes from './AuthRoutes';
-import UserRoutes from './UserRoutes';
+import VideUploadRoutes from './VideoRoutes';
 
 export default class Routes {
   public init = (app: Application): void => {
-    app.use('/api/auth', new AuthRoutes().router);
-    app.use('/api/user', new UserRoutes().router);
+    app.use('/api/video', new VideUploadRoutes().router);
   };
 }

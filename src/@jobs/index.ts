@@ -17,5 +17,5 @@ export default class QueueFactory extends Bull {
 }
 
 // TODO: automate this registration process
-import testJob from './testJob';
-export const testQueue = new QueueFactory(testJob);
+import videoConverterJob from './videoConverterJob';
+export const videoConverterQueue = new QueueFactory(videoConverterJob);
