@@ -23,7 +23,7 @@ export default class VideoController {
         const video = await VideoModel.create({ name: filename });
         videoConverterQueue.add({ name: filename, videoId: video.id });
 
-        res.send({ uploaded: true });
+        res.send({ videoId: video.id });
       });
     });
   };

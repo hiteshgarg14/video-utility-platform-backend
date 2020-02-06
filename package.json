@@ -1,9 +1,9 @@
 {
-  "name": "node-typescript-boilerplate",
+  "name": "video-upload-watch-stream-platform",
   "main": "dist/src/@server.js",
   "types": "./dist/src/@server.d.ts",
   "version": "0.0.1",
-  "description": "Awesome project developed with TypeORM.",
+  "description": "A NodeJS application to upload, watch and stream live videos.",
   "engines": {
     "node": "12.12.0"
   },
@@ -69,8 +69,6 @@
     "build": "tsc",
     "start": "set debug=* && ts-node-dev --debug --respawn --transpileOnly --ignore-watch node_modules ./src/@server.ts",
     "prod": "tsc && pm2 start ./build/src/@server.js",
-    "typeorm": "ts-node ./node_modules/typeorm/cli.js",
-    "migration:run": "npm run typeorm migration:run -- -t each",
     "test": "mocha --exit -r ts-node/register 'src/@tests/**/*.test.ts'"
   }
 }
