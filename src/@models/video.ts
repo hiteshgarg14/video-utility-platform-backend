@@ -1,24 +1,5 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME!,
-  process.env.DB_USERNAME!,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    port: +process.env.DB_PORT!,
-    dialect: 'postgres',
-    logging: log => {
-      console.log(log);
-    },
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-  },
-);
+import { Model, DataTypes } from 'sequelize';
+import { sequelize } from '../@server';
 
 export default class VideoModel extends Model {
   public id!: number;

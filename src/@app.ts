@@ -57,6 +57,9 @@ export default class AppFactory {
     this.app.use(
       busboy({
         highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
+        limits: {
+          fileSize: 10 * 1024 * 1024, // Set 10MiB as max file size.
+        },
       }),
     );
   }

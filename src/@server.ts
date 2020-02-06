@@ -3,14 +3,14 @@ dotenv.config();
 
 import http from 'http';
 import { normalizePort } from './@utils';
-import AppFactory from './@app';
 import NodeMediaServer from 'node-media-server';
 import config from './@configs';
 import { Sequelize } from 'sequelize';
 import createPlaylist from './@utils/createLiveStreamPlaylist';
 import appRootPath from 'app-root-path';
+import fs from 'fs';
 
-const sequelize = new Sequelize(
+export const sequelize = new Sequelize(
   process.env.DB_NAME!,
   process.env.DB_USERNAME!,
   process.env.DB_PASSWORD,
@@ -18,7 +18,9 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: +process.env.DB_PORT!,
     dialect: 'postgres',
-    logging: false,
+    logging: log => {
+      console.log(log);
+    },
     pool: {
       max: 5,
       min: 0,
@@ -31,31 +33,45 @@ const sequelize = new Sequelize(
 sequelize
   .authenticate()
   .then(() => {
-    const appFactory = new AppFactory();
-    const app = appFactory.app;
-
-    const port = normalizePort(process.env.PORT || '4000');
-    app.set('port', port);
-    app.get('/', (_, res) => {
-      res.sendFile(`${appRootPath}/index.html`);
-    });
-
-    const server = http.createServer(app);
-    server.listen(+port, '0.0.0.0', 511, () =>
-      console.log(`Server is running on port ${port}`),
-    );
-
-    const nms = new NodeMediaServer(config.nodeMediaServerConfig);
-    nms.on('prePublish', (_: any, StreamPath: string, __: any) => {
-      if (StreamPath.indexOf('hls_') !== -1) {
-        const name = StreamPath.split('/').pop() as string;
-        createPlaylist(name);
-      }
-    });
-    nms.run();
+    console.log('Database connected');
   })
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
 
-export default sequelize;
+import AppFactory from './@app';
+
+[
+  'uploads',
+  'uploads/240p',
+  'uploads/360p',
+  'uploads/480p',
+  'uploads/720p',
+  'uploads/1080p',
+  'uploads/liveMedia',
+  'uploads/liveMedia/live',
+].map(dirName => {
+  const dirFullPath = `${appRootPath}/${dirName}`;
+  if (!fs.existsSync(dirFullPath)) {
+    fs.mkdirSync(dirFullPath);
+  }
+});
+
+const appFactory = new AppFactory();
+const app = appFactory.app;
+
+const port = normalizePort(process.env.PORT || '4000');
+app.set('port', port);
+const server = http.createServer(app);
+server.listen(+port, '0.0.0.0', 511, () =>
+  console.log(`Server is running on port ${port}`),
+);
+
+const nms = new NodeMediaServer(config.nodeMediaServerConfig);
+nms.on('prePublish', (_: any, StreamPath: string, __: any) => {
+  if (StreamPath.indexOf('hls_') !== -1) {
+    const name = StreamPath.split('/').pop() as string;
+    createPlaylist(name);
+  }
+});
+nms.run();
