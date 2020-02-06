@@ -60,7 +60,19 @@ const app = appFactory.app;
 
 const port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
-const server = http.createServer(app);
+app.get('/', (_, res) => {
+  res.sendFile(`${appRootPath}/index.html`);
+});
+
+app.get('/hitesh.js', (_, res) => {
+  res.sendFile(`${appRootPath}/hitesh.js`);
+});
+
+export const server = http.createServer(app);
+
+// tslint:disable-next-line: no-var-requires
+require('./@sockets/videoUploadEvents');
+
 server.listen(+port, '0.0.0.0', 511 /* Default value */, () =>
   console.log(`Server is running on port ${port}`),
 );
