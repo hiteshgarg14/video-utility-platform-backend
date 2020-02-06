@@ -10,6 +10,7 @@ A NodeJS application to upload, watch and stream live videos.
   - touch .env
 
 - Configure following environment variables in `.env` file:
+
   - **NODE_ENV** : development / staging / production
   - **PORT** : Port to run the app. (Default: 4000)
   - **DB_USERNAME** : Postgres database username
@@ -26,7 +27,12 @@ A NodeJS application to upload, watch and stream live videos.
   - **VIDEO_UPLOAD_BUFFER_SIZE** : Buffer size for uploading videos in chunks. (Default: 2 MiB)
   - **VIDEO_UPLOAD_MAX_FILE_SIZE** : Max video file size to be uploaded. (Default: 10 MiB)
   - **SENTRY_DSN** (_optional_): DSN Url of sentry for error tracking
-- Run `npm start`
+
+- Make sure that database has been created with same name as `DB_NAME` mentioned in `.env` file.
+
+- Run following commands
+  - npx sequelize-cli db:migrate
+  - npm start
 
 ## Built With
 
@@ -47,5 +53,13 @@ A NodeJS application to upload, watch and stream live videos.
 - Move uploads folder to blob storage
 
 - Add user management and authentication functionalities
+
+- Write API documentation
+
+- Handle duplicate video upload by name
+
+- Complete all inline `TODO` comments
+
+- Add support for resumable video upload
 
 - ...

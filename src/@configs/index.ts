@@ -21,10 +21,10 @@ export default {
     rtmp: {
       // host: process.env.NMS_RTMP_HOST || 'localhost',
       port: process.env.NMS_RTMP_PORT || 1935,
-      chunk_size: 6000,
+      chunk_size: 4096,
       gop_cache: false,
-      ping: 30,
-      ping_timeout: 60,
+      ping: 1,
+      ping_timeout: 1,
     },
     http: {
       // host: process.env.NMS_HTTP_HOST || 'localhost',

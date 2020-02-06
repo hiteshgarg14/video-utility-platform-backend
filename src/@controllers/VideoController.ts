@@ -1,5 +1,5 @@
 import appRoot from 'app-root-path';
-import { RequestHandler } from 'express';
+import { RequestHandler, Request } from 'express';
 import { exec } from 'child_process';
 import uuidv1 from 'uuid/v1';
 import fs from 'fs';
@@ -50,10 +50,12 @@ export default class VideoController {
       return res.status(404).json({ error: 'Video not found' });
     }
 
-    const requestedResolution =
-      req.query.resolution === undefined
-        ? Math.max(...video.resolutions.map(item => +item)).toString()
-        : req.query.resolution;
+    const requestedResolution = this.getVideoResolution(req, video);
+    if (!requestedResolution) {
+      return res
+        .status(400)
+        .json({ error: 'Video not available in request resolution.' });
+    }
 
     const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
     if (!fs.existsSync(filePath)) {
@@ -100,10 +102,12 @@ export default class VideoController {
       return res.status(404).json({ error: 'Video not found' });
     }
 
-    const requestedResolution =
-      req.query.resolution === undefined
-        ? Math.max(...video.resolutions.map(item => +item)).toString()
-        : req.query.resolution;
+    const requestedResolution = this.getVideoResolution(req, video);
+    if (!requestedResolution) {
+      return res
+        .status(400)
+        .json({ error: 'Video not available in request resolution.' });
+    }
 
     const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
     if (!fs.existsSync(filePath)) {
@@ -117,7 +121,29 @@ export default class VideoController {
     const process = exec(
       `ffmpeg -re -i ${filePath} -c:v libx264 -preset superfast -tune zerolatency -c:a aac -ar 44100 -f flv ${rtmpStreamingUrl}`,
     );
+
+    // TODO: save this PID and add an api to stop live stream.
     console.log(`Live streaming started with PID: ${process.pid}`);
     return res.json({ rtmp: rtmpStreamingUrl, hls: hlsStreamUrl });
+  };
+
+  private getVideoResolution = (
+    req: Request,
+    video: VideoModel,
+  ): string | undefined => {
+    let requestedResolution: string;
+
+    if (!req.query.resolution) {
+      requestedResolution = Math.max(
+        ...video.resolutions.map(item => +item),
+      ).toString();
+    } else {
+      if (!video.resolutions.includes(req.query.resolution)) {
+        return;
+      } else {
+        requestedResolution = req.query.resolution;
+      }
+    }
+    return requestedResolution;
   };
 }
