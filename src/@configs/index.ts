@@ -17,11 +17,12 @@ export default {
       : undefined || 10 * 1024 * 1024, // Set 10MiB as max default file size.
   },
   nodeMediaServerConfig: {
+    logType: 3,
     rtmp: {
       // host: process.env.NMS_RTMP_HOST || 'localhost',
       port: process.env.NMS_RTMP_PORT || 1935,
-      chunk_size: 60000,
-      gop_cache: true,
+      chunk_size: 6000,
+      gop_cache: false,
       ping: 30,
       ping_timeout: 60,
     },

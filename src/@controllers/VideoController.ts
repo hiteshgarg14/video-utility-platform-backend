@@ -4,8 +4,8 @@ import { exec } from 'child_process';
 import uuidv1 from 'uuid/v1';
 import fs from 'fs';
 import { videoConverterQueue } from '../@jobs';
-import VideoModel from '../@models/video';
-import configs from '../@configs';
+import VideoModel from '../@models/VideoModel';
+import Configs from '../@configs';
 
 export default class VideoController {
   public upload: RequestHandler = (req, res) => {
@@ -40,14 +40,13 @@ export default class VideoController {
     if (!video) {
       return res.status(404).json({ error: 'Video not found.' });
     }
-
     return res.json({ video });
   };
 
   public getVideo: RequestHandler = async (req, res) => {
     const video = await VideoModel.findByPk(req.params.id);
 
-    if (video === null) {
+    if (!video || (video && !video.resolutions)) {
       return res.status(404).json({ error: 'Video not found' });
     }
 
@@ -57,6 +56,11 @@ export default class VideoController {
         : req.query.resolution;
 
     const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
+    if (!fs.existsSync(filePath)) {
+      return res
+        .status(500)
+        .json({ error: 'Looks like video file has been manually removed.' });
+    }
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;
     const range = req.headers.range as string;
@@ -92,7 +96,7 @@ export default class VideoController {
   public liveSteramVideo: RequestHandler = async (req, res) => {
     const video = await VideoModel.findByPk(req.params.id);
 
-    if (video === null) {
+    if (!video || (video && !video.resolutions)) {
       return res.status(404).json({ error: 'Video not found' });
     }
 
@@ -102,9 +106,14 @@ export default class VideoController {
         : req.query.resolution;
 
     const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
+    if (!fs.existsSync(filePath)) {
+      return res
+        .status(500)
+        .json({ error: 'Looks like video file has been removed.' });
+    }
     const streamKey = uuidv1();
     const rtmpStreamingUrl = `rtmp://localhost/live/${streamKey}`;
-    const hlsStreamUrl = `http://localhost:${configs.nodeMediaServerConfig.http.port}/live/${streamKey}/index.m3u8`;
+    const hlsStreamUrl = `http://localhost:${Configs.nodeMediaServerConfig.http.port}/live/${streamKey}/index.m3u8`;
     const process = exec(
       `ffmpeg -re -i ${filePath} -c:v libx264 -preset superfast -tune zerolatency -c:a aac -ar 44100 -f flv ${rtmpStreamingUrl}`,
     );

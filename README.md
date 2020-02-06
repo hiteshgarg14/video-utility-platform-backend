@@ -48,6 +48,4 @@ A NodeJS application to upload, watch and stream live videos.
 
 - Add user management and authentication functionalities
 
-- Improve sql queries logging
-
 - ...

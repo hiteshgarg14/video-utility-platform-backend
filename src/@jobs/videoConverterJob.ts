@@ -1,7 +1,7 @@
 import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs';
 import appRootPath from 'app-root-path';
-import VideoModel from '../@models/video';
+import VideoModel from '../@models/VideoModel';
 
 const supportedResolutions = {
   1080: '1920x1080',
@@ -30,6 +30,8 @@ const videoConverterJob = async (data: {
         for (const [key] of Object.entries(supportedResolutions)) {
           if (+key < resolution) {
             console.log(`Converting video from ${resolution} to ${key}`);
+
+            // TODO: add catch block for this promise.
             await new Promise((resolve, reject) => {
               command
                 .size(
