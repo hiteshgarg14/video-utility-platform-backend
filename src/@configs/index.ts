@@ -8,6 +8,14 @@ export default {
       password: process.env.REDIS_PASSWORD,
     },
   },
+  busboyConfig: {
+    highWaterMark: process.env.VIDEO_UPLOAD_BUFFER_SIZE
+      ? +process.env.VIDEO_UPLOAD_BUFFER_SIZE
+      : undefined || 2 * 1024 * 1024, // Set 2MiB as default buffer
+    fileSize: process.env.VIDEO_UPLOAD_MAX_FILE_SIZE
+      ? +process.env.VIDEO_UPLOAD_MAX_FILE_SIZE
+      : undefined || 10 * 1024 * 1024, // Set 10MiB as max default file size.
+  },
   nodeMediaServerConfig: {
     rtmp: {
       // host: process.env.NMS_RTMP_HOST || 'localhost',

@@ -4,7 +4,7 @@ dotenv.config();
 import http from 'http';
 import { normalizePort } from './@utils';
 import NodeMediaServer from 'node-media-server';
-import config from './@configs';
+import Config from './@configs';
 import { Sequelize } from 'sequelize';
 import appRootPath from 'app-root-path';
 import fs from 'fs';
@@ -66,5 +66,5 @@ server.listen(+port, '0.0.0.0', 511 /* Default value */, () =>
   console.log(`Server is running on port ${port}`),
 );
 
-const nms = new NodeMediaServer(config.nodeMediaServerConfig);
+const nms = new NodeMediaServer(Config.nodeMediaServerConfig);
 nms.run();

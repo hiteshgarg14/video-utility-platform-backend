@@ -20,6 +20,7 @@ import {
   consoleLogger,
 } from './@utils/logger';
 import Routes from './@routes';
+import Configs from './@configs';
 
 export default class AppFactory {
   public app: Application;
@@ -56,9 +57,9 @@ export default class AppFactory {
     this.app.use(this.setRequestId);
     this.app.use(
       busboy({
-        highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
+        highWaterMark: Configs.busboyConfig.highWaterMark,
         limits: {
-          fileSize: 10 * 1024 * 1024, // Set 10MiB as max file size.
+          fileSize: Configs.busboyConfig.fileSize,
         },
       }),
     );

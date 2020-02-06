@@ -23,6 +23,8 @@ A NodeJS application to upload, watch and stream live videos.
   - **NMS_RTMP_PORT** : Node media server RTMP port.(Default: 1935)
   - **NMS_HTTP_PORT** : Node media server HTTP port. (Default: 8001)
   - **NMS_HTTP_MEDIA_ROOT** : Root path of video files directory used by Node media server. (Default: `/uploads/liveMedia`)
+  - **VIDEO_UPLOAD_BUFFER_SIZE** : Buffer size for uploading videos in chunks. (Default: 2 MiB)
+  - **VIDEO_UPLOAD_MAX_FILE_SIZE** : Max video file size to be uploaded. (Default: 10 MiB)
   - **SENTRY_DSN** (_optional_): DSN Url of sentry for error tracking
 - Run `npm start`
 
