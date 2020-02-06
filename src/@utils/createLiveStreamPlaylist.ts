@@ -13,16 +13,13 @@ const template = (name: string) => {
 
 const createPlaylist = (name: string) => {
   const base = `${appRootPath}/uploads/liveMedia/live/${name}`;
-  // const base = path.join(__dirname, `./../media/live/${name}`)
   const playlist = `${base}/index.m3u8`;
   mkdirp(base, (err: any) => {
     if (!err) {
-      // tslint:disable-next-line: no-shadowed-variable
-      fs.open(playlist, 'r', (err: any, _) => {
-        if (err) {
-          // tslint:disable-next-line: no-shadowed-variable
-          fs.writeFile(playlist, template(name), err => {
-            if (err) {
+      fs.open(playlist, 'r', (error: any, _) => {
+        if (error) {
+          fs.writeFile(playlist, template(name), writeError => {
+            if (writeError) {
               console.log(err);
             }
             console.log('The file was saved!');

@@ -25,8 +25,8 @@ const videoConverterJob = async (data: {
       console.log(`Found current resolution: ${resolution}`);
       if (resolution !== undefined) {
         const command = ffmpeg(filePath);
-        // tslint:disable-next-line: no-var-keyword prefer-const
-        var allResolutions: string[] = new Array();
+
+        const allResolutions: string[] = new Array();
         for (const [key] of Object.entries(supportedResolutions)) {
           if (+key < resolution) {
             console.log(`Converting video from ${resolution} to ${key}`);
@@ -35,10 +35,10 @@ const videoConverterJob = async (data: {
                 .size(
                   supportedResolutions[+key as 1080 | 720 | 480 | 360 | 240],
                 )
-                // tslint:disable-next-line: no-shadowed-variable
-                .on('error', err => {
+
+                .on('error', commandError => {
                   console.log(
-                    `Error occured while converting video ${data.name} to ${key}p: ${err}`,
+                    `Error occured while converting video ${data.name} to ${key}p: ${commandError}`,
                   );
                   reject(err);
                 })
@@ -68,9 +68,8 @@ const videoConverterJob = async (data: {
         fs.rename(
           `${appRootPath}/uploads/${data.name}`,
           `${appRootPath}/uploads/${folderName}p/${data.name}`,
-          // tslint:disable-next-line: no-shadowed-variable
-          err => {
-            console.log(err);
+          renameError => {
+            console.log(renameError);
           },
         );
 

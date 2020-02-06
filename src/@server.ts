@@ -6,7 +6,6 @@ import { normalizePort } from './@utils';
 import NodeMediaServer from 'node-media-server';
 import config from './@configs';
 import { Sequelize } from 'sequelize';
-import createPlaylist from './@utils/createLiveStreamPlaylist';
 import appRootPath from 'app-root-path';
 import fs from 'fs';
 
@@ -39,8 +38,6 @@ sequelize
     console.error('Unable to connect to the database:', err);
   });
 
-import AppFactory from './@app';
-
 [
   'uploads',
   'uploads/240p',
@@ -57,21 +54,17 @@ import AppFactory from './@app';
   }
 });
 
+import AppFactory from './@app';
+
 const appFactory = new AppFactory();
 const app = appFactory.app;
 
 const port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
 const server = http.createServer(app);
-server.listen(+port, '0.0.0.0', 511, () =>
+server.listen(+port, '0.0.0.0', 511 /* Default value */, () =>
   console.log(`Server is running on port ${port}`),
 );
 
 const nms = new NodeMediaServer(config.nodeMediaServerConfig);
-nms.on('prePublish', (_: any, StreamPath: string, __: any) => {
-  if (StreamPath.indexOf('hls_') !== -1) {
-    const name = StreamPath.split('/').pop() as string;
-    createPlaylist(name);
-  }
-});
 nms.run();
