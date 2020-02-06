@@ -5,6 +5,7 @@ import uuidv1 from 'uuid/v1';
 import fs from 'fs';
 import { videoConverterQueue } from '../@jobs';
 import VideoModel from '../@models/video';
+import configs from '../@configs';
 
 export default class VideoController {
   public upload: RequestHandler = (req, res) => {
@@ -33,10 +34,18 @@ export default class VideoController {
     res.send({ videos });
   };
 
+  public getVideoDetails: RequestHandler = async (req, res) => {
+    const video = await VideoModel.findByPk(req.params.id);
+
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found.' });
+    }
+
+    return res.json({ video });
+  };
+
   public getVideo: RequestHandler = async (req, res) => {
-    const video = await VideoModel.findOne({
-      where: { name: req.params.videoName },
-    });
+    const video = await VideoModel.findByPk(req.params.id);
 
     if (video === null) {
       return res.status(404).json({ error: 'Video not found' });
@@ -47,7 +56,7 @@ export default class VideoController {
         ? Math.max(...video.resolutions.map(item => +item)).toString()
         : req.query.resolution;
 
-    const filePath = `${appRoot}/uploads/${requestedResolution}p/${req.params.videoName}`;
+    const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
     const stat = fs.statSync(filePath);
     const fileSize = stat.size;
     const range = req.headers.range as string;
@@ -81,9 +90,7 @@ export default class VideoController {
   };
 
   public liveSteramVideo: RequestHandler = async (req, res) => {
-    const video = await VideoModel.findOne({
-      where: { name: req.params.videoName },
-    });
+    const video = await VideoModel.findByPk(req.params.id);
 
     if (video === null) {
       return res.status(404).json({ error: 'Video not found' });
@@ -94,10 +101,10 @@ export default class VideoController {
         ? Math.max(...video.resolutions.map(item => +item)).toString()
         : req.query.resolution;
 
-    const filePath = `${appRoot}/uploads/${requestedResolution}p/${req.params.videoName}`;
+    const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
     const streamKey = uuidv1();
     const rtmpStreamingUrl = `rtmp://localhost/live/${streamKey}`;
-    const hlsStreamUrl = `http://localhost:8001/live/${streamKey}/index.m3u8`;
+    const hlsStreamUrl = `http://localhost:${configs.nodeMediaServerConfig.http.port}/live/${streamKey}/index.m3u8`;
     const process = exec(
       `ffmpeg -re -i ${filePath} -c:v libx264 -preset superfast -tune zerolatency -c:a aac -ar 44100 -f flv ${rtmpStreamingUrl}`,
     );
