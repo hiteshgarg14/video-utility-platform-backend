@@ -1,4 +1,4 @@
-var socket = io.connect('http://video-utility-platform.herokuapp.com');
+var socket = io.connect('https://video-utility-platform.herokuapp.com');
 
 window.addEventListener('load', Ready);
 
