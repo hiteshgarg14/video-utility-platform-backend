@@ -33,11 +33,13 @@ io.sockets.on('connection', socket => {
     };
 
     let position = 0;
+    let percent = 0;
     try {
       const stat = fs.statSync(filePath);
       if (stat.isFile()) {
         files[name].downloaded = stat.size;
         position = stat.size / Config.websocketVideoUploadConfig.chunkSize;
+        percent = (files[name].downloaded / files[name].fileSize) * 100;
       }
     } catch {
       console.log('New file detected...');
@@ -51,9 +53,9 @@ io.sockets.on('connection', socket => {
         files[name].handler = fd; // We store the file handler so we can write to it later
         socket.emit('MoreData', {
           Place: position,
-          Percent: 0 /* recalculate percentage when resuming? */,
-          bufferSize: Config.websocketVideoUploadConfig.bufferSize,
-          chunkSize: Config.websocketVideoUploadConfig.chunkSize,
+          Percent: percent,
+          BufferSize: Config.websocketVideoUploadConfig.bufferSize,
+          ChunkSize: Config.websocketVideoUploadConfig.chunkSize,
         });
       }
     });
@@ -65,43 +67,49 @@ io.sockets.on('connection', socket => {
     files[name].data += data.Data;
 
     if (files[name].downloaded === files[name].fileSize) {
-      // If File is Fully Uploaded
-      fs.write(
-        files[name].handler!,
-        files[name].data,
-        null,
-        'Binary',
-        (_, __) => {
-          // Get Thumbnail Here
-          VideoModel.create({ name }).then(video => {
-            videoConverterQueue.add({ name, videoId: video.id });
-            socket.emit('Done', { videoId: video.id });
-          });
-        },
-      );
+      if (process.env.UPLOAD_FILES_TO_AWS_S3 !== 'true') {
+        // If File is Fully Uploaded
+        fs.write(
+          files[name].handler!,
+          files[name].data,
+          null,
+          'Binary',
+          (_, __) => {
+            // Get Thumbnail Here
+            VideoModel.create({ name }).then(video => {
+              videoConverterQueue.add({ name, videoId: video.id });
+              socket.emit('Done', { videoId: video.id });
+            });
+          },
+        );
+      } else {
+      }
     } else if (
       files[name].data.length > Config.websocketVideoUploadConfig.bufferSize
     ) {
       // If the Data Buffer reaches limit
-      fs.write(
-        files[name].handler!,
-        files[name].data,
-        null,
-        'Binary',
-        (_, __) => {
-          files[name].data = ''; // Reset The Buffer
-          const position =
-            files[name].downloaded /
-            Config.websocketVideoUploadConfig.chunkSize;
-          const percent = (files[name].downloaded / files[name].fileSize) * 100;
-          socket.emit('MoreData', {
-            Place: position,
-            Percent: percent,
-            bufferSize: Config.websocketVideoUploadConfig.bufferSize,
-            chunkSize: Config.websocketVideoUploadConfig.chunkSize,
-          });
-        },
-      );
+      if (process.env.UPLOAD_FILES_TO_AWS_S3 !== 'true') {
+        fs.write(
+          files[name].handler!,
+          files[name].data,
+          null,
+          'Binary',
+          (_, __) => {
+            files[name].data = ''; // Reset The Buffer
+            const position =
+              files[name].downloaded /
+              Config.websocketVideoUploadConfig.chunkSize;
+            const percent =
+              (files[name].downloaded / files[name].fileSize) * 100;
+            socket.emit('MoreData', {
+              Place: position,
+              Percent: percent,
+              BufferSize: Config.websocketVideoUploadConfig.bufferSize,
+              ChunkSize: Config.websocketVideoUploadConfig.chunkSize,
+            });
+          },
+        );
+      }
     } else {
       const position =
         files[name].downloaded / Config.websocketVideoUploadConfig.chunkSize;
@@ -109,8 +117,8 @@ io.sockets.on('connection', socket => {
       socket.emit('MoreData', {
         Place: position,
         Percent: percent,
-        bufferSize: Config.websocketVideoUploadConfig.bufferSize,
-        chunkSize: Config.websocketVideoUploadConfig.chunkSize,
+        BufferSize: Config.websocketVideoUploadConfig.bufferSize,
+        ChunkSize: Config.websocketVideoUploadConfig.chunkSize,
       });
     }
   });
