@@ -52,6 +52,8 @@ io.sockets.on('connection', socket => {
         socket.emit('MoreData', {
           Place: position,
           Percent: 0 /* recalculate percentage when resuming? */,
+          bufferSize: Config.websocketVideoUploadConfig.bufferSize,
+          chunkSize: Config.websocketVideoUploadConfig.chunkSize,
         });
       }
     });
@@ -92,14 +94,24 @@ io.sockets.on('connection', socket => {
             files[name].downloaded /
             Config.websocketVideoUploadConfig.chunkSize;
           const percent = (files[name].downloaded / files[name].fileSize) * 100;
-          socket.emit('MoreData', { Place: position, Percent: percent });
+          socket.emit('MoreData', {
+            Place: position,
+            Percent: percent,
+            bufferSize: Config.websocketVideoUploadConfig.bufferSize,
+            chunkSize: Config.websocketVideoUploadConfig.chunkSize,
+          });
         },
       );
     } else {
       const position =
         files[name].downloaded / Config.websocketVideoUploadConfig.chunkSize;
       const percent = (files[name].downloaded / files[name].fileSize) * 100;
-      socket.emit('MoreData', { Place: position, Percent: percent });
+      socket.emit('MoreData', {
+        Place: position,
+        Percent: percent,
+        bufferSize: Config.websocketVideoUploadConfig.bufferSize,
+        chunkSize: Config.websocketVideoUploadConfig.chunkSize,
+      });
     }
   });
 });
