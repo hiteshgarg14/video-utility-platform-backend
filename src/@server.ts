@@ -51,13 +51,14 @@ const app = appFactory.app;
 
 const port = normalizePort(Config.appPort);
 app.set('port', port);
-app.get('/', (_, res) => {
-  res.sendFile(`${appRootPath}/index.html`);
-});
 
-app.get('/hitesh.js', (_, res) => {
-  res.sendFile(`${appRootPath}/hitesh.js`);
-});
+// app.get('/', (_, res) => {
+//   res.sendFile(`${appRootPath}/websocket_test.html`);
+// });
+
+// app.get('/hitesh.js', (_, res) => {
+//   res.sendFile(`${appRootPath}/websocket_test.js`);
+// });
 
 export const server = http.createServer(app);
 

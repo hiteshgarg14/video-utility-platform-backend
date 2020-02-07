@@ -86,3 +86,5 @@ dist
 build
 
 uploads
+websocket_test.html
+websocket_test.js
