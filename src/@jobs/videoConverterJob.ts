@@ -1,7 +1,7 @@
 import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs';
-import appRootPath from 'app-root-path';
 import VideoModel from '../@models/VideoModel';
+import Config from '../@configs';
 
 const supportedResolutions = {
   1080: '1920x1080',
@@ -15,7 +15,7 @@ const videoConverterJob = async (data: {
   name: string;
   videoId: string | number;
 }): Promise<boolean> => {
-  const filePath = `${appRootPath}/uploads/${data.name}`;
+  const filePath = `${Config.mediaUploadPath}/${data.name}`;
 
   ffmpeg.ffprobe(filePath, async (err, metadata) => {
     if (err) {
@@ -49,7 +49,7 @@ const videoConverterJob = async (data: {
                   console.log(`Converted video ${data.name} to ${key}p`);
                   resolve();
                 })
-                .saveToFile(`${appRootPath}/uploads/${key}p/${data.name}`);
+                .saveToFile(`${Config.mediaUploadPath}/${key}p/${data.name}`);
             });
             allResolutions.push(key);
           }
@@ -68,8 +68,8 @@ const videoConverterJob = async (data: {
           `Moving original file (${data.name}) to ${folderName}p folder`,
         );
         fs.rename(
-          `${appRootPath}/uploads/${data.name}`,
-          `${appRootPath}/uploads/${folderName}p/${data.name}`,
+          `${Config.mediaUploadPath}/${data.name}`,
+          `${Config.mediaUploadPath}/${folderName}p/${data.name}`,
           renameError => {
             console.log(renameError);
           },

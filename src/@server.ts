@@ -71,7 +71,7 @@ app.get('/hitesh.js', (_, res) => {
 export const server = http.createServer(app);
 
 // tslint:disable-next-line: no-var-requires
-require('./@sockets/videoUploadEvents');
+require('./@sockets');
 
 server.listen(+port, '0.0.0.0', 511 /* Default value */, () =>
   console.log(`Server is running on port ${port}`),

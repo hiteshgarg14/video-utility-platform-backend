@@ -88,13 +88,7 @@ socket.on('Done', function(data) {
   var Content = 'Video Successfully Uploaded !!';
   console.log(Content);
   console.log(data['videoId']);
-  Content +=
-    "<img id='Thumb' src='" +
-    Path +
-    data['videoId'] +
-    "' alt='" +
-    Name +
-    "'><br>";
+  Content += data['videoId'];
   Content +=
     "<button  type='button' name='Upload' value='' id='Restart' class='Button'>Upload Another</button>";
   document.getElementById('UploadArea').innerHTML = Content;

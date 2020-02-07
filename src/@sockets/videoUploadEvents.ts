@@ -1,9 +1,9 @@
 import socketIo from 'socket.io';
 import fs from 'fs';
-import appRootPath from 'app-root-path';
 import { server } from '../@server';
 import VideoModel from '../@models/VideoModel';
 import { videoConverterQueue } from '../@jobs';
+import Config from '../@configs';
 
 interface Ifiles {
   [key: string]: {
@@ -25,7 +25,7 @@ io.sockets.on('connection', socket => {
   // Either while starting the file upload or resuming the file upload
   socket.on('Start', data => {
     const name = data.Name as string;
-    const filePath = `${appRootPath}/uploads/${name}`;
+    const filePath = `${Config.mediaUploadPath}/${name}`;
     files[name] = {
       fileSize: data.Size,
       data: '',
@@ -37,7 +37,7 @@ io.sockets.on('connection', socket => {
       const stat = fs.statSync(filePath);
       if (stat.isFile()) {
         files[name].downloaded = stat.size;
-        position = stat.size / 524288; // We'll pass this data in half-megabyte increments, which comes out to 524288 bytes.
+        position = stat.size / Config.websocketVideoUploadConfig.chunkSize;
       }
     } catch {
       console.log('New file detected...');
@@ -77,8 +77,10 @@ io.sockets.on('connection', socket => {
           });
         },
       );
-    } else if (files[name].data.length > 10485760) {
-      // If the Data Buffer reaches 10MB
+    } else if (
+      files[name].data.length > Config.websocketVideoUploadConfig.bufferSize
+    ) {
+      // If the Data Buffer reaches limit
       fs.write(
         files[name].handler!,
         files[name].data,
@@ -86,13 +88,16 @@ io.sockets.on('connection', socket => {
         'Binary',
         (_, __) => {
           files[name].data = ''; // Reset The Buffer
-          const position = files[name].downloaded / 524288;
+          const position =
+            files[name].downloaded /
+            Config.websocketVideoUploadConfig.chunkSize;
           const percent = (files[name].downloaded / files[name].fileSize) * 100;
           socket.emit('MoreData', { Place: position, Percent: percent });
         },
       );
     } else {
-      const position = files[name].downloaded / 524288;
+      const position =
+        files[name].downloaded / Config.websocketVideoUploadConfig.chunkSize;
       const percent = (files[name].downloaded / files[name].fileSize) * 100;
       socket.emit('MoreData', { Place: position, Percent: percent });
     }

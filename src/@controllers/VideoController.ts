@@ -1,4 +1,3 @@
-import appRoot from 'app-root-path';
 import { RequestHandler, Request } from 'express';
 import { exec } from 'child_process';
 import uuidv1 from 'uuid/v1';
@@ -13,7 +12,9 @@ export default class VideoController {
 
     req.busboy.on('file', (_, file, filename) => {
       // Create a write stream of the new file
-      const fstream = fs.createWriteStream(`${appRoot}/uploads/${filename}`);
+      const fstream = fs.createWriteStream(
+        `${Configs.mediaUploadPath}/${filename}`,
+      );
       // Pipe it trough
       file.pipe(fstream);
 
@@ -57,7 +58,7 @@ export default class VideoController {
         .json({ error: 'Video not available in request resolution.' });
     }
 
-    const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
+    const filePath = `${Configs.mediaUploadPath}/${requestedResolution}p/${video.name}`;
     if (!fs.existsSync(filePath)) {
       return res
         .status(500)
@@ -109,7 +110,7 @@ export default class VideoController {
         .json({ error: 'Video not available in request resolution.' });
     }
 
-    const filePath = `${appRoot}/uploads/${requestedResolution}p/${video.name}`;
+    const filePath = `${Configs.mediaUploadPath}/${requestedResolution}p/${video.name}`;
     if (!fs.existsSync(filePath)) {
       return res
         .status(500)

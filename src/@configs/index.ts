@@ -1,6 +1,9 @@
 import appRootPath from 'app-root-path';
 
 export default {
+  mediaUploadPath: process.env.MEDIA_UPLOAD_PATH
+    ? process.env.MEDIA_UPLOAD_PATH
+    : undefined || `${appRootPath}/uploads`,
   defaultRedisConfig: {
     redis: {
       port: +process.env.REDIS_PORT!,
@@ -15,6 +18,14 @@ export default {
     fileSize: process.env.VIDEO_UPLOAD_MAX_FILE_SIZE
       ? +process.env.VIDEO_UPLOAD_MAX_FILE_SIZE
       : undefined || 10 * 1024 * 1024, // Set 10MiB as max default file size.
+  },
+  websocketVideoUploadConfig: {
+    bufferSize: process.env.WS_VIDEO_UPLOAD_BUFFER_SIZE
+      ? +process.env.WS_VIDEO_UPLOAD_BUFFER_SIZE
+      : undefined || 10485760, // 10 MiB
+    chunkSize: process.env.WS_VIDEO_UPLOAD_CHUNK_SIZE
+      ? +process.env.WS_VIDEO_UPLOAD_CHUNK_SIZE
+      : undefined || 524288, // 0.5 MiB
   },
   nodeMediaServerConfig: {
     logType: 3,

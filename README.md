@@ -27,6 +27,9 @@ A NodeJS application to upload, watch and stream live videos.
   - **VIDEO_UPLOAD_BUFFER_SIZE** : Buffer size for uploading videos in chunks. (Default: 2 MiB)
   - **VIDEO_UPLOAD_MAX_FILE_SIZE** : Max video file size to be uploaded. (Default: 10 MiB)
   - **SENTRY_DSN** (_optional_): DSN Url of sentry for error tracking
+  - **WS_VIDEO_UPLOAD_BUFFER_SIZE** : Buffer size for uploading videos using websocket. (Default: 10 MiB)
+  - **WS_VIDEO_UPLOAD_CHUNK_SIZE** : Chunk size for uploading videos using websocket. (Default: 2 MiB)
+  - **MEDIA_UPLOAD_PATH** : Path to save uploaded media files. (Default: `/uploads`)
 
 - Make sure that database has been created with same name as `DB_NAME` mentioned in `.env` file.
 
@@ -54,12 +57,10 @@ A NodeJS application to upload, watch and stream live videos.
 
 - Add user management and authentication functionalities
 
-- Write API documentation
+- Write API, Websocket documentation
 
 - Handle duplicate video upload by name
 
 - Complete all inline `TODO` comments
-
-- Add support for resumable video upload
 
 - ...

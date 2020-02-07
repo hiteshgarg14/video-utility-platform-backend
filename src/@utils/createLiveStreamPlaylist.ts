@@ -1,6 +1,6 @@
 import fs from 'fs';
 import mkdirp from 'mkdirp';
-import appRootPath from 'app-root-path';
+import Config from '../@configs';
 
 const template = (name: string) => {
   let line = `#EXTM3U\n#EXT-X-VERSION:3\n`;
@@ -12,7 +12,7 @@ const template = (name: string) => {
 };
 
 const createPlaylist = (name: string) => {
-  const base = `${appRootPath}/uploads/liveMedia/live/${name}`;
+  const base = `${Config.mediaUploadPath}/liveMedia/live/${name}`;
   const playlist = `${base}/index.m3u8`;
   mkdirp(base, (err: any) => {
     if (!err) {
