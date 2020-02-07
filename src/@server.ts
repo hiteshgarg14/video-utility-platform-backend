@@ -37,16 +37,7 @@ sequelize
     console.error('Unable to connect to the database:', err);
   });
 
-[
-  'uploads',
-  'uploads/240p',
-  'uploads/360p',
-  'uploads/480p',
-  'uploads/720p',
-  'uploads/1080p',
-  'uploads/liveMedia',
-  'uploads/liveMedia/live',
-].map(dirName => {
+Config.requiredDirectories.map(dirName => {
   const dirFullPath = `${appRootPath}/${dirName}`;
   if (!fs.existsSync(dirFullPath)) {
     fs.mkdirSync(dirFullPath);
@@ -58,7 +49,7 @@ import AppFactory from './@app';
 const appFactory = new AppFactory();
 const app = appFactory.app;
 
-const port = normalizePort(process.env.PORT || '4000');
+const port = normalizePort(Config.appPort);
 app.set('port', port);
 app.get('/', (_, res) => {
   res.sendFile(`${appRootPath}/index.html`);
@@ -73,8 +64,8 @@ export const server = http.createServer(app);
 // tslint:disable-next-line: no-var-requires
 require('./@sockets');
 
-server.listen(+port, '0.0.0.0', 511 /* Default value */, () =>
-  console.log(`Server is running on port ${port}`),
+server.listen(+port, Config.appHost, 511 /* Default value */, () =>
+  console.log(`Server is running on ${Config.appHost}:${port}`),
 );
 
 const nms = new NodeMediaServer(Config.nodeMediaServerConfig);

@@ -1,9 +1,19 @@
 import appRootPath from 'app-root-path';
 
 export default {
-  mediaUploadPath: process.env.MEDIA_UPLOAD_PATH
-    ? process.env.MEDIA_UPLOAD_PATH
-    : undefined || `${appRootPath}/uploads`,
+  appHost: process.env.HOST || 'localhost',
+  appPort: process.env.PORT || '4000',
+  mediaUploadPath: process.env.MEDIA_UPLOAD_PATH || `${appRootPath}/uploads`,
+  requiredDirectories: [
+    'uploads',
+    'uploads/240p',
+    'uploads/360p',
+    'uploads/480p',
+    'uploads/720p',
+    'uploads/1080p',
+    'uploads/liveMedia',
+    'uploads/liveMedia/live',
+  ],
   defaultRedisConfig: {
     redis: {
       port: +process.env.REDIS_PORT!,
