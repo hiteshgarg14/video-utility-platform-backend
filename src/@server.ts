@@ -56,7 +56,7 @@ app.set('port', port);
 //   res.sendFile(`${appRootPath}/websocket_test.html`);
 // });
 
-// app.get('/hitesh.js', (_, res) => {
+// app.get('/websocket_test.js', (_, res) => {
 //   res.sendFile(`${appRootPath}/websocket_test.js`);
 // });
 

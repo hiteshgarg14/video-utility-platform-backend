@@ -14,6 +14,18 @@ export default {
     'uploads/liveMedia',
     'uploads/liveMedia/live',
   ],
+  awsConfig: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGION,
+    s3Bucket: process.env.AWS_S3_BUCKET,
+    chunkSize: process.env.AWS_S3_UPLOAD_CHUNK_SIZE
+      ? +process.env.AWS_S3_UPLOAD_CHUNK_SIZE
+      : undefined || 1024 * 1024 * 5, // Minimum 5MB per chunk (except the last part) http://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadComplete.html
+    maxUploadRetries: process.env.AWS_S3_MAX_UPLOAD_Retries
+      ? +process.env.AWS_S3_MAX_UPLOAD_Retries
+      : undefined || 3,
+  },
   defaultRedisConfig: {
     redis: {
       port: +process.env.REDIS_PORT!,

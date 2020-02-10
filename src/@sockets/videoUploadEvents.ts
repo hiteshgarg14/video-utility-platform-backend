@@ -4,13 +4,15 @@ import { server } from '../@server';
 import VideoModel from '../@models/VideoModel';
 import { videoConverterQueue } from '../@jobs';
 import Config from '../@configs';
+import AWSMultiPartUpload from '../@utils/awsMultiPartUpload';
 
 interface Ifiles {
   [key: string]: {
     fileSize: number;
     data: string;
     downloaded: number;
-    handler?: number;
+    fileHandler?: number;
+    awsHandler?: AWSMultiPartUpload;
   };
 }
 const files: Ifiles = {};
@@ -50,7 +52,14 @@ io.sockets.on('connection', socket => {
         console.log('Error while opening the file....');
         console.log(error);
       } else {
-        files[name].handler = fd; // We store the file handler so we can write to it later
+        files[name].fileHandler = fd; // We store the file handler so we can write to it later
+        if (process.env.UPLOAD_FILES_TO_AWS_S3 === 'true') {
+          files[name].awsHandler = new AWSMultiPartUpload(
+            name,
+            'video/mp4',
+            files[name].fileSize,
+          );
+        }
         socket.emit('MoreData', {
           Place: position,
           Percent: percent,
@@ -67,53 +76,58 @@ io.sockets.on('connection', socket => {
     files[name].data += data.Data;
 
     if (files[name].downloaded === files[name].fileSize) {
-      if (process.env.UPLOAD_FILES_TO_AWS_S3 !== 'true') {
-        // If File is Fully Uploaded
-        fs.write(
-          files[name].handler!,
-          files[name].data,
-          null,
-          'Binary',
-          (_, __) => {
-            // Get Thumbnail Here
-            VideoModel.create({ name }).then(video => {
-              videoConverterQueue.add({ name, videoId: video.id });
-              socket.emit('Done', { videoId: video.id });
-            });
-          },
-        );
-      } else {
-      }
+      // If File is Fully Uploaded
+      fs.write(
+        files[name].fileHandler!,
+        files[name].data,
+        null,
+        'Binary',
+        (_, __) => {
+          if (process.env.UPLOAD_FILES_TO_AWS_S3 === 'true') {
+            files[name].awsHandler!.startUpload(files[name].data);
+          }
+          // Get Thumbnail Here
+          VideoModel.create({ name }).then(video => {
+            videoConverterQueue.add({ name, videoId: video.id });
+            socket.emit('Done', { videoId: video.id });
+          });
+        },
+      );
     } else if (
       files[name].data.length > Config.websocketVideoUploadConfig.bufferSize
     ) {
       // If the Data Buffer reaches limit
-      if (process.env.UPLOAD_FILES_TO_AWS_S3 !== 'true') {
-        fs.write(
-          files[name].handler!,
-          files[name].data,
-          null,
-          'Binary',
-          (_, __) => {
-            files[name].data = ''; // Reset The Buffer
-            const position =
-              files[name].downloaded /
-              Config.websocketVideoUploadConfig.chunkSize;
-            const percent =
-              (files[name].downloaded / files[name].fileSize) * 100;
-            socket.emit('MoreData', {
-              Place: position,
-              Percent: percent,
-              BufferSize: Config.websocketVideoUploadConfig.bufferSize,
-              ChunkSize: Config.websocketVideoUploadConfig.chunkSize,
-            });
-          },
-        );
-      }
+
+      fs.write(
+        files[name].fileHandler! as number,
+        files[name].data,
+        null,
+        'Binary',
+        (_, __) => {
+          if (process.env.UPLOAD_FILES_TO_AWS_S3 === 'true') {
+            files[name].awsHandler!.startUpload(files[name].data);
+          }
+
+          files[name].data = ''; // Reset The Buffer
+
+          const position =
+            files[name].downloaded /
+            Config.websocketVideoUploadConfig.chunkSize;
+          const percent = (files[name].downloaded / files[name].fileSize) * 100;
+
+          socket.emit('MoreData', {
+            Place: position,
+            Percent: percent,
+            BufferSize: Config.websocketVideoUploadConfig.bufferSize,
+            ChunkSize: Config.websocketVideoUploadConfig.chunkSize,
+          });
+        },
+      );
     } else {
       const position =
         files[name].downloaded / Config.websocketVideoUploadConfig.chunkSize;
       const percent = (files[name].downloaded / files[name].fileSize) * 100;
+
       socket.emit('MoreData', {
         Place: position,
         Percent: percent,

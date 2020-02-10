@@ -25,6 +25,7 @@
   "dependencies": {
     "@sentry/node": "^5.11.2",
     "@types/app-root-path": "^1.2.4",
+    "@types/aws-sdk": "^2.7.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/body-parser": "^1.17.1",
     "@types/compression": "^1.0.1",
@@ -41,6 +42,7 @@
     "@types/uuid": "^3.4.7",
     "@types/winston": "^2.4.4",
     "app-root-path": "^3.0.0",
+    "aws-sdk": "^2.613.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.1",
     "bull": "^3.12.1",
