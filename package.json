@@ -66,7 +66,7 @@
     "sequelize-cli": "^5.5.1",
     "socket.io": "^2.4.0",
     "ts-node-dev": "^1.0.0-pre.44",
-    "typeorm": "^0.2.22",
+    "typeorm": "^0.2.25",
     "uuid": "^3.4.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.2"
