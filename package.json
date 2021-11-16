@@ -42,7 +42,7 @@
     "@types/uuid": "^3.4.7",
     "@types/winston": "^2.4.4",
     "app-root-path": "^3.0.0",
-    "aws-sdk": "^2.613.0",
+    "aws-sdk": "^2.814.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.1",
     "bull": "^3.12.1",
